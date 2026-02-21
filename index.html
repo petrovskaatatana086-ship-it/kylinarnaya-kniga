@@ -36,7 +36,7 @@
             <div v-if="page === 'home'">
                 <div class="recipe-grid">
                     <div v-for="r in recipes" :key="r.id" class="recipe-card" @click="openRecipe(r)">
-                        <img :src="r.image" class="recipe-img">
+                        <img :src="r.image" class="recipe-img" @error="r.image = 'https://via.placeholder.com/500x300?text=Image+Not+Found'">
                         <div class="recipe-info"><h3>{{ r.title }}</h3></div>
                     </div>
                 </div>
@@ -62,7 +62,6 @@
                         <span>{{ name }}</span>
                         <span style="font-weight:600; color: var(--olive);">{{ val.amount }} {{ val.unit }}</span>
                     </div>
-                    <div v-if="Object.keys(summarizedList).length === 0" style="text-align:center; color:#999; padding:20px;">Добавьте блюда в план</div>
                 </div>
             </div>
 
@@ -77,8 +76,6 @@
                         <ul style="margin:15px 0; list-style: none;">
                             <li v-for="ing in currentRecipe.ingredients">🔹 {{ ing.name }}: {{ ing.amount }} {{ ing.unit }}</li>
                         </ul>
-                        <h3>Приготовление:</h3>
-                        <p v-for="step in currentRecipe.steps" style="margin-top:10px;">{{ step }}</p>
                     </div>
                 </div>
             </div>
@@ -86,7 +83,7 @@
 
         <div class="overlay" v-if="showPicker" @click="showPicker = false"></div>
         <div class="modal" v-if="showPicker">
-            <h3>Выберите день:</h3>
+            <h3>Куда добавим?</h3>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:15px;">
                 <button v-for="day in weekDays" @click="addToPlan(day)" class="btn btn-outline">{{ day }}</button>
             </div>
@@ -140,7 +137,6 @@
                         const item = this.summarizedList[name];
                         text += `🔘 ${name}: ${item.amount} ${item.unit}\n`;
                     }
-                    if (Object.keys(this.summarizedList).length === 0) return alert("План пуст!");
                     window.open(`https://t.me/share/url?url=${encodeURIComponent(text)}`, '_blank');
                 }
             }
