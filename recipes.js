@@ -4,6 +4,7 @@ const myRecipes = [
         title: 'Хрустящий картофель с чесноком',
         category: 'Гарниры',
         subcategory: 'Овощи',
+        servings: 2,
         ingredients: [
             { name: 'Картофель', amount: 800, unit: 'г' },
             { name: 'Масло оливковое', amount: 3, unit: 'ст.л.' },
@@ -22,6 +23,7 @@ const myRecipes = [
         title: 'Маковые рулеты с творогом (4 рулета)',
         category: 'Выпечка',
         subcategory: 'Сладкое',
+        servings: 4,
         video: 'https://t.me/nasti_kitchen/409', 
         ingredients: [
             { name: 'Мука', amount: 700, unit: 'г' },
