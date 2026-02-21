@@ -10,7 +10,7 @@ const myRecipes = [
             { name: 'Картофель', amount: 800, unit: 'г' },
             { name: 'Масло оливковое', amount: 3, unit: 'ст.л.' },
             { name: 'Чеснок', amount: 3, unit: 'зуб.' },
-            { name: 'Пармезан', amount: 50, unit: 'г' }
+            { name: 'Специи', amount: 1, unit: 'уп.' }
         ],
         steps: ['Нарезать дольками.', 'Смешать с маслом и специями.', 'Запекать 40 мин при 200°C.']
     },
@@ -20,7 +20,7 @@ const myRecipes = [
         category: 'Выпечка',
         time: 150,
         kcal: 420,
-        image: 'https://i.ibb.co/m568f6S/image.jpg',
+        image: 'https://images.unsplash.com/photo-1509365465985-25d11c17e812?w=500',
         video: 'https://t.me/nasti_kitchen/409', 
         ingredients: [
             { name: 'Мука', amount: 700, unit: 'г' },
