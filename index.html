@@ -2,7 +2,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌿 ScandiKitchen | Умный Список</title>
+    <title>🌿 ScandiKitchen | Рецепты</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <style>
@@ -12,8 +12,9 @@
         header { background: var(--white); padding: 1rem 5%; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); display: flex; justify-content: space-between; align-items: center; }
         .logo { font-weight: 600; font-size: 1.5rem; color: var(--olive); cursor: pointer; }
         .container { max-width: 1200px; margin: 2rem auto; padding: 0 20px; }
-        .btn { padding: 10px 20px; border-radius: 25px; border: none; cursor: pointer; font-weight: 500; font-family: inherit; transition: 0.3s; }
-        .btn-primary { background: var(--olive); color: white; }
+        .btn { padding: 12px 24px; border-radius: 25px; border: none; cursor: pointer; font-weight: 600; font-family: inherit; transition: 0.3s; display: inline-block; text-decoration: none; text-align: center; }
+        .btn-primary { background: var(--olive); color: white; width: 100%; }
+        .btn-video { background: #24A1DE; color: white; margin-top: 15px; width: 100%; }
         .btn-outline { background: transparent; border: 1px solid var(--olive); color: var(--olive); }
         .recipe-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
         .recipe-card { background: var(--white); border-radius: 15px; overflow: hidden; box-shadow: var(--shadow); cursor: pointer; }
@@ -21,8 +22,12 @@
         .recipe-info { padding: 15px; }
         .shopping-list { background: white; padding: 30px; border-radius: 20px; margin-top: 30px; border: 2px solid var(--olive); }
         .shop-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
-        .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 20px; z-index: 1000; box-shadow: 0 0 20px rgba(0,0,0,0.2); }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; }
+        
+        /* Модалка с днями */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 999; backdrop-filter: blur(3px); }
+        .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 20px; z-index: 1000; box-shadow: 0 10px 40px rgba(0,0,0,0.3); width: 90%; max-width: 400px; }
+        .day-btn { width: 100%; padding: 15px; margin-bottom: 8px; border: 1px solid #eee; border-radius: 10px; background: #f9f9f9; cursor: pointer; font-weight: 600; text-align: left; }
+        .day-btn:hover { background: var(--olive); color: white; }
     </style>
 </head>
 <body>
@@ -36,7 +41,7 @@
             <div v-if="page === 'home'">
                 <div class="recipe-grid">
                     <div v-for="r in recipes" :key="r.id" class="recipe-card" @click="openRecipe(r)">
-                        <img :src="r.image" class="recipe-img" @error="r.image = 'https://via.placeholder.com/500x300?text=Image+Not+Found'">
+                        <img :src="r.image" class="recipe-img">
                         <div class="recipe-info"><h3>{{ r.title }}</h3></div>
                     </div>
                 </div>
@@ -55,8 +60,8 @@
 
                 <div class="shopping-list">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                        <h2>🛒 Итоговый список покупок:</h2>
-                        <button class="btn btn-primary" @click="sendToTelegram">✈ Отправить в Telegram</button>
+                        <h2>🛒 Список продуктов (суммарно):</h2>
+                        <button class="btn btn-primary" style="width:auto;" @click="sendToTelegram">✈ В Telegram</button>
                     </div>
                     <div v-for="(val, name) in summarizedList" :key="name" class="shop-row">
                         <span>{{ name }}</span>
@@ -65,17 +70,22 @@
                 </div>
             </div>
 
-            <div v-if="page === 'recipe'" style="background:white; padding:30px; border-radius:20px;">
+            <div v-if="page === 'recipe' && currentRecipe" style="background:white; padding:30px; border-radius:20px;">
                 <button class="btn btn-outline" @click="page = 'home'" style="margin-bottom:20px;">← Назад</button>
                 <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:30px;">
-                    <img :src="currentRecipe.image" style="width:100%; border-radius:15px;">
+                    <div>
+                        <img :src="currentRecipe.image" style="width:100%; border-radius:15px; box-shadow: var(--shadow);">
+                        <button class="btn btn-primary" style="margin-top:20px;" @click="showPicker = true">📅 Добавить в план</button>
+                        <a v-if="currentRecipe.video" :href="currentRecipe.video" target="_blank" class="btn btn-video">🎬 Смотреть видео</a>
+                    </div>
                     <div>
                         <h1>{{ currentRecipe.title }}</h1>
-                        <button class="btn btn-primary" style="width:100%; margin:20px 0;" @click="showPicker = true">📅 В план питания</button>
-                        <h3>Ингредиенты:</h3>
+                        <h3 style="margin-top:20px;">Ингредиенты:</h3>
                         <ul style="margin:15px 0; list-style: none;">
-                            <li v-for="ing in currentRecipe.ingredients">🔹 {{ ing.name }}: {{ ing.amount }} {{ ing.unit }}</li>
+                            <li v-for="ing in currentRecipe.ingredients" style="padding: 5px 0; border-bottom: 1px solid #f0f0f0;">🔹 {{ ing.name }}: {{ ing.amount }} {{ ing.unit }}</li>
                         </ul>
+                        <h3>Приготовление:</h3>
+                        <p v-for="step in currentRecipe.steps" style="margin-top:15px; line-height: 1.6;">{{ step }}</p>
                     </div>
                 </div>
             </div>
@@ -83,10 +93,8 @@
 
         <div class="overlay" v-if="showPicker" @click="showPicker = false"></div>
         <div class="modal" v-if="showPicker">
-            <h3>Куда добавим?</h3>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:15px;">
-                <button v-for="day in weekDays" @click="addToPlan(day)" class="btn btn-outline">{{ day }}</button>
-            </div>
+            <h3 style="margin-bottom:15px;">Выберите день недели:</h3>
+            <button v-for="day in weekDays" @click="addToPlan(day)" class="day-btn">{{ day }}</button>
         </div>
     </div>
 
@@ -97,10 +105,10 @@
             data() {
                 return {
                     page: 'home', showPicker: false,
-                    weekDays: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
+                    weekDays: ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'],
                     recipes: typeof myRecipes !== 'undefined' ? myRecipes : [],
                     currentRecipe: null,
-                    plan: JSON.parse(localStorage.getItem('userPlan') || '{"Пн":[],"Вт":[],"Ср":[],"Чт":[],"Пт":[],"Сб":[],"Вс":[]}')
+                    plan: JSON.parse(localStorage.getItem('userPlan') || '{"Понедельник":[],"Вторник":[],"Среда":[],"Четверг":[],"Пятница":[],"Суббота":[],"Воскресенье":[]}')
                 }
             },
             computed: {
