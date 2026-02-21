@@ -1,8 +1,9 @@
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌿 ScandiKitchen | Умный Список</title>
+    <title>🌿 ScandiKitchen | Умная Кулинарная Книга</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <style>
@@ -12,11 +13,11 @@
         header { background: var(--white); padding: 1rem 5%; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); display: flex; justify-content: space-between; align-items: center; }
         .logo { font-weight: 600; font-size: 1.5rem; color: var(--olive); cursor: pointer; }
         .container { max-width: 1200px; margin: 2rem auto; padding: 0 20px; }
-        .btn { padding: 10px 20px; border-radius: 25px; border: none; cursor: pointer; font-weight: 500; font-family: inherit; }
+        .btn { padding: 10px 20px; border-radius: 25px; border: none; cursor: pointer; font-weight: 500; font-family: inherit; transition: 0.3s; }
         .btn-primary { background: var(--olive); color: white; }
         .btn-outline { background: transparent; border: 1px solid var(--olive); color: var(--olive); }
         .recipe-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
-        .recipe-card { background: var(--white); border-radius: 15px; overflow: hidden; box-shadow: var(--shadow); cursor: pointer; transition: 0.3s; }
+        .recipe-card { background: var(--white); border-radius: 15px; overflow: hidden; box-shadow: var(--shadow); cursor: pointer; }
         .recipe-img { width: 100%; height: 200px; object-fit: cover; }
         .recipe-info { padding: 15px; }
         .shopping-list { background: white; padding: 30px; border-radius: 20px; margin-top: 30px; border: 2px solid var(--olive); }
@@ -43,11 +44,11 @@
             </div>
 
             <div v-if="page === 'planner'">
-                <button class="btn btn-outline" @click="page = 'home'" style="margin-bottom:20px;">← К рецептам</button>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                <button class="btn btn-outline" @click="page = 'home'" style="margin-bottom:20px;">← Назад</button>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px;">
                     <div v-for="day in weekDays" :key="day" style="background:white; padding:15px; border-radius:10px;">
                         <h4 style="color:var(--olive); border-bottom:1px solid #eee; margin-bottom:10px;">{{ day }}</h4>
-                        <div v-for="(meal, idx) in plan[day]" :key="idx" style="font-size:0.9rem; margin-bottom:5px; display:flex; justify-content:space-between;">
+                        <div v-for="(meal, idx) in plan[day]" :key="idx" style="font-size:0.85rem; margin-bottom:5px; display:flex; justify-content:space-between;">
                             {{ meal.title }} <span style="color:red; cursor:pointer;" @click="removeFromPlan(day, idx)">×</span>
                         </div>
                     </div>
@@ -60,20 +61,21 @@
                     </div>
                     <div v-for="(val, name) in summarizedList" :key="name" class="shop-row">
                         <span>{{ name }}</span>
-                        <span style="font-weight:600;">{{ val.amount }} {{ val.unit }}</span>
+                        <span style="font-weight:600; color: var(--olive);">{{ val.amount }} {{ val.unit }}</span>
                     </div>
+                    <div v-if="Object.keys(summarizedList).length === 0" style="text-align:center; color:#999; padding:20px;">План пуст</div>
                 </div>
             </div>
 
             <div v-if="page === 'recipe'" style="background:white; padding:30px; border-radius:20px;">
-                <button class="btn btn-outline" @click="page = 'home'">← Назад</button>
-                <h1 style="margin:20px 0;">{{ currentRecipe.title }}</h1>
+                <button class="btn btn-outline" @click="page = 'home'" style="margin-bottom:20px;">← Назад</button>
                 <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:30px;">
                     <img :src="currentRecipe.image" style="width:100%; border-radius:15px;">
                     <div>
-                        <button class="btn btn-primary" style="width:100%; margin-bottom:20px;" @click="showPicker = true">📅 Добавить в план</button>
+                        <h1>{{ currentRecipe.title }}</h1>
+                        <button class="btn btn-primary" style="width:100%; margin:20px 0;" @click="showPicker = true">📅 Добавить в план</button>
                         <h3>Ингредиенты:</h3>
-                        <ul style="margin:15px 0;">
+                        <ul style="margin:15px 0; list-style: none;">
                             <li v-for="ing in currentRecipe.ingredients">🔹 {{ ing.name }}: {{ ing.amount }} {{ ing.unit }}</li>
                         </ul>
                         <h3>Приготовление:</h3>
@@ -85,7 +87,7 @@
 
         <div class="overlay" v-if="showPicker" @click="showPicker = false"></div>
         <div class="modal" v-if="showPicker">
-            <h3>Выберите день:</h3>
+            <h3>Добавить в меню:</h3>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:15px;">
                 <button v-for="day in weekDays" @click="addToPlan(day)" class="btn btn-outline">{{ day }}</button>
             </div>
