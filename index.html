@@ -2,7 +2,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ScandiKitchen — Светлая версия</title>
+    <title>ScandiKitchen — Управление рецептами</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
@@ -12,28 +12,25 @@
         .nav-top { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto 15px; }
         .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
         
-        /* Кнопки */
-        .btn { padding: 12px 20px; border-radius: 25px; border: none; cursor: pointer; font-weight: 600; font-family: inherit; transition: 0.2s; text-decoration: none; display: inline-block; text-align: center; }
+        .btn { padding: 12px 20px; border-radius: 25px; border: none; cursor: pointer; font-weight: 600; font-family: inherit; transition: 0.2s; text-decoration: none; display: inline-block; text-align: center; box-sizing: border-box; }
         .btn-olive { background: var(--olive); color: white; }
         .btn-gray { background: #f0f0f0; color: #555; }
+        .btn-gold { background: #fff; border: 2px solid var(--gold); color: var(--gold); }
+        .btn-gold.active { background: var(--gold); color: white; }
         .btn-video { background: var(--tg-blue); color: white; width: 100%; margin-bottom: 15px; }
 
-        /* Фильтры */
-        .filters { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; max-width: 1200px; margin: 0 auto; }
+        .filters { display: flex; gap: 15px; flex-wrap: wrap; align-items: center; max-width: 1200px; margin: 0 auto; }
         select, input { padding: 10px 15px; border-radius: 20px; border: 1.5px solid var(--olive); background: white; }
         .festive-toggle { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600; color: var(--gold); }
 
-        /* Карточки */
         .recipe-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
         .recipe-card { background: white; border-radius: 20px; overflow: hidden; border: 1px solid var(--border); cursor: pointer; position: relative; }
         .card-img { width: 100%; height: 200px; object-fit: cover; background: #f9f9f9; }
-        .festive-badge { position: absolute; top: 10px; right: 10px; background: white; padding: 5px 10px; border-radius: 15px; font-size: 0.8rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); color: var(--gold); border: 1px solid var(--gold); }
+        .festive-badge { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.9); padding: 5px 10px; border-radius: 15px; font-size: 0.8rem; color: var(--gold); border: 1px solid var(--gold); font-weight: bold; }
 
-        /* Страница рецепта */
         .recipe-layout { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 40px; }
         .main-img { width: 100%; border-radius: 25px; border: 1px solid var(--border); object-fit: cover; background: #eee; }
         
-        /* Шаги - СЛОВО В СЛОВО */
         .step-card { display: flex; gap: 20px; background: white; padding: 20px; border-radius: 15px; margin-bottom: 15px; border: 1px solid var(--border); cursor: pointer; align-items: flex-start; }
         .step-card.done { opacity: 0.4; background: #f9fbf7; text-decoration: line-through; }
         .step-num { width: 32px; height: 32px; background: var(--olive); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: bold; }
@@ -59,7 +56,7 @@
                     <option v-for="s in dynamicSubs" :key="s" :value="s">{{ s }}</option>
                 </select>
                 <label class="festive-toggle">
-                    <input type="checkbox" v-model="onlyFestive"> ⭐️ Праздничные
+                    <input type="checkbox" v-model="onlyFestive"> ⭐️ Только праздничные
                 </label>
             </div>
         </header>
@@ -68,7 +65,7 @@
             <div v-if="page === 'home'">
                 <div class="recipe-grid">
                     <div v-for="r in filteredList" :key="r.id" class="recipe-card" @click="openRecipe(r)">
-                        <div v-if="r.isFestive" class="festive-badge">⭐️ Праздничный</div>
+                        <div v-if="isFestive(r.id)" class="festive-badge">⭐️ Праздничный</div>
                         <img v-if="userPhotos[r.id]" :src="userPhotos[r.id]" class="card-img">
                         <div v-else class="card-img" style="display:flex; align-items:center; justify-content:center; color:#ccc;">📷</div>
                         <div style="padding:15px;">
@@ -87,25 +84,32 @@
                         <div v-else class="main-img" style="display:flex; align-items:center; justify-content:center;">📷</div>
                         
                         <div style="margin-top:20px;">
+                            <button @click="toggleFestive(currentRecipe.id)" 
+                                    :class="['btn', 'btn-gold', { active: isFestive(currentRecipe.id) }]" 
+                                    style="width: 100%; margin-bottom: 15px;">
+                                {{ isFestive(currentRecipe.id) ? '⭐️ Праздничный (отменить)' : '☆ Сделать праздничным' }}
+                            </button>
+
                             <a v-if="currentRecipe.video" :href="currentRecipe.video" target="_blank" class="btn btn-video">
                                 🎬 СМОТРЕТЬ ВИДЕО-РЕЦЕПТ
                             </a>
-                            <label class="btn btn-gray" style="width:100%; box-sizing:border-box; margin-bottom:15px; cursor:pointer;">
+
+                            <label class="btn btn-gray" style="width:100%; margin-bottom:15px; cursor:pointer;">
                                 📷 ИЗМЕНИТЬ ФОТО <input type="file" @change="uploadPhoto" hidden accept="image/*">
                             </label>
-                            <div style="background:white; padding:20px; border-radius:20px; border:1px solid var(--border); text-align:center;">
+
+                            <div style="background:white; padding:20px; border-radius:20px; border:1px solid var(--border); text-align:center; margin-bottom: 15px;">
                                 <p>Порций: <b>{{ servings }}</b></p>
                                 <div style="display:flex; gap:10px; justify-content:center;">
                                     <button @click="servings > 1 ? servings-- : null" class="btn btn-gray">—</button>
                                     <button @click="servings++" class="btn btn-gray">+</button>
                                 </div>
                             </div>
-                            <button class="btn btn-olive" style="width:100%; margin-top:15px; padding:18px;" @click="addToPlan">📅 В ПЛАН НЕДЕЛИ</button>
+                            <button class="btn btn-olive" style="width:100%; padding:18px;" @click="addToPlan">📅 В ПЛАН НЕДЕЛИ</button>
                         </div>
                     </div>
 
                     <div>
-                        <div v-if="currentRecipe.isFestive" style="color:var(--gold); font-weight:bold;">⭐️ ПРАЗДНИЧНЫЙ РЕЦЕПТ</div>
                         <h1 style="margin:0; font-size:2rem;">{{ currentRecipe.title }}</h1>
                         
                         <h3 style="margin-top:40px; border-bottom:2px solid var(--olive); display:inline-block;">🛒 Ингредиенты</h3>
@@ -125,18 +129,6 @@
                     </div>
                 </div>
             </div>
-
-            <div v-if="page === 'planner'">
-                <button class="btn btn-gray" @click="page = 'home'">← В меню</button>
-                <h2 style="margin-top:30px;">Мой план</h2>
-                <div v-for="(list, day) in plan" :key="day" style="background:white; padding:15px; border-radius:15px; border:1px solid var(--border); margin-bottom:10px;">
-                    <b style="color:var(--olive)">{{ day }}</b>
-                    <div v-for="(item, index) in list" style="display:flex; justify-content:space-between; margin-top:5px;">
-                        <span>{{ item.title }}</span>
-                        <span @click="removeFromPlan(day, index)" style="color:red; cursor:pointer;">×</span>
-                    </div>
-                </div>
-            </div>
         </main>
     </div>
 
@@ -152,6 +144,7 @@
                     currentRecipe: null, servings: 1,
                     userPhotos: JSON.parse(localStorage.getItem('userPhotos') || '{}'),
                     stepProgress: JSON.parse(localStorage.getItem('stepProgress') || '{}'),
+                    festiveRecipes: JSON.parse(localStorage.getItem('festiveRecipes') || '[]'),
                     plan: JSON.parse(localStorage.getItem('userPlan') || '{"Пн":[],"Вт":[],"Ср":[],"Чт":[],"Пт":[],"Сб":[],"Вс":[]}')
                 }
             },
@@ -165,12 +158,21 @@
                     return this.recipes.filter(r => {
                         const c = !this.selCat || r.category === this.selCat;
                         const s = !this.selSub || r.subcategory === this.selSub;
-                        const f = !this.onlyFestive || r.isFestive;
+                        const f = !this.onlyFestive || this.isFestive(r.id);
                         return c && s && f;
                     });
                 }
             },
             methods: {
+                isFestive(id) { return this.festiveRecipes.includes(id); },
+                toggleFestive(id) {
+                    if (this.isFestive(id)) {
+                        this.festiveRecipes = this.festiveRecipes.filter(item => item !== id);
+                    } else {
+                        this.festiveRecipes.push(id);
+                    }
+                    localStorage.setItem('festiveRecipes', JSON.stringify(this.festiveRecipes));
+                },
                 openRecipe(r) { this.currentRecipe = r; this.servings = r.servings || 1; this.page = 'recipe'; window.scrollTo(0,0); },
                 isStepDone(idx) { return this.stepProgress[this.currentRecipe.id]?.includes(idx); },
                 toggleStep(idx) {
@@ -180,7 +182,6 @@
                     localStorage.setItem('stepProgress', JSON.stringify(this.stepProgress));
                 },
                 addToPlan() { const d = prompt("День (Пн, Вт...):", "Пн"); if(d) { this.plan[d].push({title: this.currentRecipe.title}); localStorage.setItem('userPlan', JSON.stringify(this.plan)); } },
-                removeFromPlan(day, idx) { this.plan[day].splice(idx, 1); localStorage.setItem('userPlan', JSON.stringify(this.plan)); },
                 uploadPhoto(e) {
                     const reader = new FileReader();
                     reader.onload = (f) => { this.userPhotos[this.currentRecipe.id] = f.target.result; localStorage.setItem('userPhotos', JSON.stringify(this.userPhotos)); };
