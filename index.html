@@ -2,48 +2,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ScandiKitchen — Управление рецептами</title>
+    <title>ScandiKitchen — Светлая версия</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --olive: #556b2f; --tg-blue: #24A1DE; --bg: #fdfcf9; --text: #333; --border: #eee; --gold: #b48a06; }
+        :root { --olive: #556b2f; --tg-blue: #24A1DE; --bg: #fdfcf9; --text: #333; --border: #eee; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; line-height: 1.6; }
+        
         header { background: #fff; padding: 20px 5%; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
         .nav-top { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto 15px; }
+        
         .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
         
-        .btn { padding: 12px 20px; border-radius: 25px; border: none; cursor: pointer; font-weight: 600; font-family: inherit; transition: 0.2s; text-decoration: none; display: inline-block; text-align: center; box-sizing: border-box; }
+        /* Кнопки */
+        .btn { padding: 12px 20px; border-radius: 25px; border: none; cursor: pointer; font-weight: 600; font-family: inherit; transition: 0.2s; text-decoration: none; display: inline-block; text-align: center; }
         .btn-olive { background: var(--olive); color: white; }
         .btn-gray { background: #f0f0f0; color: #555; }
-        .btn-gold { background: #fff; border: 2px solid var(--gold); color: var(--gold); }
-        .btn-gold.active { background: var(--gold); color: white; }
-        .btn-video { background: var(--tg-blue); color: white; width: 100%; margin-bottom: 15px; }
-
-        .filters { display: flex; gap: 15px; flex-wrap: wrap; align-items: center; max-width: 1200px; margin: 0 auto; }
-        select, input { padding: 10px 15px; border-radius: 20px; border: 1.5px solid var(--olive); background: white; }
-        .festive-toggle { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600; color: var(--gold); }
-
-        .recipe-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
-        .recipe-card { background: white; border-radius: 20px; overflow: hidden; border: 1px solid var(--border); cursor: pointer; position: relative; }
-        .card-img { width: 100%; height: 200px; object-fit: cover; background: #f9f9f9; }
-        .festive-badge { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.9); padding: 5px 10px; border-radius: 15px; font-size: 0.8rem; color: var(--gold); border: 1px solid var(--gold); font-weight: bold; }
-
-        .recipe-layout { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 40px; }
-        .main-img { width: 100%; border-radius: 25px; border: 1px solid var(--border); object-fit: cover; background: #eee; }
+        .btn-video { background: var(--tg-blue); color: white; width: 100%; margin-bottom: 15px; font-size: 0.95rem; }
         
+        /* Фильтры */
+        .filters { display: flex; gap: 10px; flex-wrap: wrap; max-width: 1200px; margin: 0 auto; }
+        select, input { padding: 10px 15px; border-radius: 20px; border: 1.5px solid var(--olive); outline: none; background: white; }
+
+        /* Карточки */
+        .recipe-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
+        .recipe-card { background: white; border-radius: 20px; overflow: hidden; border: 1px solid var(--border); cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
+        .card-img { width: 100%; height: 200px; background: #f9f9f9; object-fit: cover; }
+        
+        /* Страница рецепта */
+        .recipe-layout { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 40px; }
+        .main-img { width: 100%; border-radius: 25px; border: 1px solid var(--border); height: auto; min-height: 300px; object-fit: cover; background: #eee; }
+        
+        /* Шаги — СТРОГО СЛОВО В СЛОВО */
         .step-card { display: flex; gap: 20px; background: white; padding: 20px; border-radius: 15px; margin-bottom: 15px; border: 1px solid var(--border); cursor: pointer; align-items: flex-start; }
         .step-card.done { opacity: 0.4; background: #f9fbf7; text-decoration: line-through; }
         .step-num { width: 32px; height: 32px; background: var(--olive); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: bold; }
         .step-content { font-size: 1.05rem; white-space: pre-line; color: #444; }
 
+        .ing-list { list-style: none; padding: 0; }
         .ing-item { padding: 12px 0; border-bottom: 1px solid #f7f7f7; display: flex; justify-content: space-between; }
+        
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 1000; display: flex; align-items: center; justify-content: center; }
+        .modal-content { background: white; padding: 30px; border-radius: 25px; width: 90%; max-width: 400px; }
     </style>
 </head>
 <body>
     <div id="app">
         <header>
             <div class="nav-top">
-                <h1 @click="page = 'home'" style="cursor:pointer; color:var(--olive); margin:0;">🌿 ScandiKitchen</h1>
+                <h1 @click="page = 'home'" style="cursor:pointer; color:var(--olive); margin:0; font-size: 1.5rem;">🌿 ScandiKitchen</h1>
                 <button class="btn btn-olive" @click="page = 'planner'">🛒 ПЛАН</button>
             </div>
             <div class="filters" v-if="page === 'home'">
@@ -55,9 +62,7 @@
                     <option value="">Подкатегория</option>
                     <option v-for="s in dynamicSubs" :key="s" :value="s">{{ s }}</option>
                 </select>
-                <label class="festive-toggle">
-                    <input type="checkbox" v-model="onlyFestive"> ⭐️ Только праздничные
-                </label>
+                <input type="text" v-model="search" placeholder="Поиск по названию...">
             </div>
         </header>
 
@@ -65,12 +70,11 @@
             <div v-if="page === 'home'">
                 <div class="recipe-grid">
                     <div v-for="r in filteredList" :key="r.id" class="recipe-card" @click="openRecipe(r)">
-                        <div v-if="isFestive(r.id)" class="festive-badge">⭐️ Праздничный</div>
                         <img v-if="userPhotos[r.id]" :src="userPhotos[r.id]" class="card-img">
                         <div v-else class="card-img" style="display:flex; align-items:center; justify-content:center; color:#ccc;">📷</div>
                         <div style="padding:15px;">
                             <small style="color:var(--olive); font-weight:bold;">{{ r.category }}</small>
-                            <h3 style="margin:5px 0;">{{ r.title }}</h3>
+                            <h3 style="margin:5px 0; font-size:1.1rem;">{{ r.title }}</h3>
                         </div>
                     </div>
                 </div>
@@ -81,42 +85,38 @@
                 <div class="recipe-layout">
                     <div>
                         <img v-if="userPhotos[currentRecipe.id]" :src="userPhotos[currentRecipe.id]" class="main-img">
-                        <div v-else class="main-img" style="display:flex; align-items:center; justify-content:center;">📷</div>
+                        <div v-else class="main-img" style="display:flex; align-items:center; justify-content:center; color:#ccc;">📷 Нет фото</div>
                         
                         <div style="margin-top:20px;">
-                            <button @click="toggleFestive(currentRecipe.id)" 
-                                    :class="['btn', 'btn-gold', { active: isFestive(currentRecipe.id) }]" 
-                                    style="width: 100%; margin-bottom: 15px;">
-                                {{ isFestive(currentRecipe.id) ? '⭐️ Праздничный (отменить)' : '☆ Сделать праздничным' }}
-                            </button>
-
                             <a v-if="currentRecipe.video" :href="currentRecipe.video" target="_blank" class="btn btn-video">
-                                🎬 СМОТРЕТЬ ВИДЕО-РЕЦЕПТ
+                                🎬 СМОТРЕТЬ ВИДЕО-РЕЦЕПТ В TG
                             </a>
 
-                            <label class="btn btn-gray" style="width:100%; margin-bottom:15px; cursor:pointer;">
+                            <label class="btn btn-gray" style="width:100%; box-sizing:border-box; cursor:pointer; margin-bottom:15px;">
                                 📷 ИЗМЕНИТЬ ФОТО <input type="file" @change="uploadPhoto" hidden accept="image/*">
                             </label>
 
-                            <div style="background:white; padding:20px; border-radius:20px; border:1px solid var(--border); text-align:center; margin-bottom: 15px;">
-                                <p>Порций: <b>{{ servings }}</b></p>
+                            <div style="background:white; padding:20px; border-radius:20px; border:1px solid var(--border); text-align:center;">
+                                <p style="margin-top:0;">Порций: <b>{{ servings }}</b></p>
                                 <div style="display:flex; gap:10px; justify-content:center;">
-                                    <button @click="servings > 1 ? servings-- : null" class="btn btn-gray">—</button>
-                                    <button @click="servings++" class="btn btn-gray">+</button>
+                                    <button class="btn btn-gray" @click="servings > 1 ? servings-- : null">—</button>
+                                    <button class="btn btn-gray" @click="servings++">+</button>
                                 </div>
                             </div>
-                            <button class="btn btn-olive" style="width:100%; padding:18px;" @click="addToPlan">📅 В ПЛАН НЕДЕЛИ</button>
+                            <button class="btn btn-olive" style="width:100%; margin-top:15px; padding:18px;" @click="showDayPicker = true">📅 ДОБАВИТЬ В МЕНЮ</button>
                         </div>
                     </div>
 
                     <div>
-                        <h1 style="margin:0; font-size:2rem;">{{ currentRecipe.title }}</h1>
+                        <h1 style="margin:0; font-size:2rem; line-height:1.2;">{{ currentRecipe.title }}</h1>
                         
                         <h3 style="margin-top:40px; border-bottom:2px solid var(--olive); display:inline-block;">🛒 Ингредиенты</h3>
-                        <div v-for="i in currentRecipe.ingredients" class="ing-item">
-                            <span>{{ i.name }}</span>
-                            <b>{{ ((i.amount / currentRecipe.servings) * servings).toFixed(1).replace('.0','') }} {{ i.unit }}</b>
-                        </div>
+                        <ul class="ing-list">
+                            <li v-for="i in currentRecipe.ingredients" class="ing-item">
+                                <span>{{ i.name }}</span>
+                                <b style="color:var(--olive)">{{ ((i.amount / currentRecipe.servings) * servings).toFixed(1).replace('.0','') }} {{ i.unit }}</b>
+                            </li>
+                        </ul>
 
                         <h3 style="margin-top:40px; border-bottom:2px solid var(--olive); display:inline-block;">👨‍🍳 Приготовление</h3>
                         <div style="margin-top:20px;">
@@ -129,7 +129,28 @@
                     </div>
                 </div>
             </div>
+
+            <div v-if="page === 'planner'">
+                <button class="btn btn-gray" @click="page = 'home'">← В меню</button>
+                <h2 style="margin-top:30px;">Мой план на неделю</h2>
+                <div v-for="(list, day) in plan" :key="day" style="margin-bottom:20px; background:white; padding:15px; border-radius:15px; border:1px solid var(--border);">
+                    <b style="color:var(--olive)">{{ day }}</b>
+                    <div v-for="(item, index) in list" :key="index" style="display:flex; justify-content:space-between; margin-top:10px; font-size:0.9rem;">
+                        <span>{{ item.title }}</span>
+                        <span @click="removeFromPlan(day, index)" style="color:red; cursor:pointer;">×</span>
+                    </div>
+                </div>
+            </div>
         </main>
+
+        <div class="modal-overlay" v-if="showDayPicker" @click="showDayPicker = false">
+            <div class="modal-content" @click.stop>
+                <h3 style="text-align:center; margin-top:0;">Выберите день</h3>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                    <button v-for="d in ['Пн','Вт','Ср','Чт','Пт','Сб','Вс']" @click="addToPlan(d)" class="btn btn-gray">{{ d }}</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="recipes.js"></script>
@@ -138,13 +159,12 @@
         createApp({
             data() {
                 return {
-                    page: 'home', selCat: '', selSub: '', search: '', onlyFestive: false,
+                    page: 'home', selCat: '', selSub: '', search: '', showDayPicker: false,
                     categories: ['🍲 Супы', '🥗 Салаты', '🍖 Основные блюда', '🍝 Гарниры', '🥐 Выпечка', '🍰 Десерты'],
                     recipes: typeof myRecipes !== 'undefined' ? myRecipes : [],
                     currentRecipe: null, servings: 1,
                     userPhotos: JSON.parse(localStorage.getItem('userPhotos') || '{}'),
                     stepProgress: JSON.parse(localStorage.getItem('stepProgress') || '{}'),
-                    festiveRecipes: JSON.parse(localStorage.getItem('festiveRecipes') || '[]'),
                     plan: JSON.parse(localStorage.getItem('userPlan') || '{"Пн":[],"Вт":[],"Ср":[],"Чт":[],"Пт":[],"Сб":[],"Вс":[]}')
                 }
             },
@@ -158,22 +178,13 @@
                     return this.recipes.filter(r => {
                         const c = !this.selCat || r.category === this.selCat;
                         const s = !this.selSub || r.subcategory === this.selSub;
-                        const f = !this.onlyFestive || this.isFestive(r.id);
-                        return c && s && f;
+                        const t = r.title.toLowerCase().includes(this.search.toLowerCase());
+                        return c && s && t;
                     });
                 }
             },
             methods: {
-                isFestive(id) { return this.festiveRecipes.includes(id); },
-                toggleFestive(id) {
-                    if (this.isFestive(id)) {
-                        this.festiveRecipes = this.festiveRecipes.filter(item => item !== id);
-                    } else {
-                        this.festiveRecipes.push(id);
-                    }
-                    localStorage.setItem('festiveRecipes', JSON.stringify(this.festiveRecipes));
-                },
-                openRecipe(r) { this.currentRecipe = r; this.servings = r.servings || 1; this.page = 'recipe'; window.scrollTo(0,0); },
+                openRecipe(r) { this.currentRecipe = r; this.servings = r.servings; this.page = 'recipe'; window.scrollTo(0,0); },
                 isStepDone(idx) { return this.stepProgress[this.currentRecipe.id]?.includes(idx); },
                 toggleStep(idx) {
                     if(!this.stepProgress[this.currentRecipe.id]) this.stepProgress[this.currentRecipe.id] = [];
@@ -181,10 +192,19 @@
                     list.includes(idx) ? list.splice(list.indexOf(idx), 1) : list.push(idx);
                     localStorage.setItem('stepProgress', JSON.stringify(this.stepProgress));
                 },
-                addToPlan() { const d = prompt("День (Пн, Вт...):", "Пн"); if(d) { this.plan[d].push({title: this.currentRecipe.title}); localStorage.setItem('userPlan', JSON.stringify(this.plan)); } },
+                addToPlan(day) {
+                    this.plan[day].push({ title: this.currentRecipe.title });
+                    localStorage.setItem('userPlan', JSON.stringify(this.plan));
+                    this.showDayPicker = false;
+                    alert('Добавлено в ' + day);
+                },
+                removeFromPlan(day, idx) { this.plan[day].splice(idx, 1); localStorage.setItem('userPlan', JSON.stringify(this.plan)); },
                 uploadPhoto(e) {
                     const reader = new FileReader();
-                    reader.onload = (f) => { this.userPhotos[this.currentRecipe.id] = f.target.result; localStorage.setItem('userPhotos', JSON.stringify(this.userPhotos)); };
+                    reader.onload = (f) => {
+                        this.userPhotos[this.currentRecipe.id] = f.target.result;
+                        localStorage.setItem('userPhotos', JSON.stringify(this.userPhotos));
+                    };
                     reader.readAsDataURL(e.target.files[0]);
                 }
             }
