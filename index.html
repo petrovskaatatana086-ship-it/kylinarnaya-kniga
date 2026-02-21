@@ -2,204 +2,330 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌿 ScandiKitchen Master Pro</title>
+    <title>ScandiKitchen Pro</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --olive: #556b2f; --milk: #f4f1ea; --text: #333; 
-            --gray: #777; --border: #e0ddd5; --white: #ffffff;
+            --milk: #f4f1ea;
+            --olive: #556b2f;
+            --text: #333333;
+            --white: #ffffff;
+            --shadow: 0 10px 30px rgba(0,0,0,0.05);
+            --radius: 20px;
         }
-        body { font-family: 'Helvetica Neue', Arial, sans-serif; background: var(--milk); color: var(--text); margin: 0; padding-bottom: 80px; }
-        header { background: var(--white); padding: 15px 5%; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; sticky: top; z-index: 100; }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { 
+            font-family: 'Helvetica Neue', 'Inter', sans-serif; 
+            background-color: var(--milk); 
+            color: var(--text); 
+            margin: 0; padding-bottom: 80px;
+        }
+
+        /* Навигация */
+        nav {
+            background: var(--white);
+            padding: 15px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        }
+
+        .logo { font-weight: 600; font-size: 1.2rem; color: var(--olive); cursor: pointer; }
+
+        /* Контейнер */
         .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
-        
-        /* Кнопки */
-        .btn { padding: 12px 20px; border-radius: 20px; border: none; cursor: pointer; font-weight: 600; transition: 0.3s; }
-        .btn-olive { background: var(--olive); color: white; }
-        .btn-gray { background: #f0f0f0; color: #555; }
-        
-        /* Модальное окно */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 2000; }
-        .modal-content { background: var(--white); padding: 30px; border-radius: 25px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
-        .day-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
 
-        /* Карточки */
-        .card { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); cursor: pointer; transition: 0.3s; }
-        .card:hover { transform: translateY(-5px); }
+        /* Карточки и Кнопки */
+        .card {
+            background: var(--white); border-radius: var(--radius);
+            padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow);
+            transition: transform 0.2s;
+        }
+        .card:active { transform: scale(0.98); }
 
-        /* Инвентаризация */
-        .ing-grid { display: grid; grid-template-columns: 1fr 100px 100px; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); align-items: center; }
-        .stock-input { width: 100%; padding: 8px; border-radius: 10px; border: 1px solid var(--border); text-align: center; background: #fafafa; }
+        .btn {
+            border: none; border-radius: 15px; padding: 12px 20px;
+            font-size: 1rem; cursor: pointer; font-weight: 600;
+            transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-main { background: var(--olive); color: white; }
+        .btn-day { width: 50px; height: 50px; border-radius: 15px; background: #eee; }
 
-        /* Список покупок */
-        .shopping-list { background: var(--white); padding: 25px; border-radius: 25px; border: 2px solid var(--olive); margin-top: 40px; }
-        .item-buy { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
-        .item-buy.done { opacity: 0.4; text-decoration: line-through; }
+        /* Поиск и фильтры */
+        .search-box {
+            width: 100%; padding: 15px; border-radius: 15px;
+            border: 1px solid #ddd; margin-bottom: 15px; font-size: 1rem;
+        }
 
-        /* План */
-        .day-box { background: white; padding: 20px; border-radius: 20px; margin-bottom: 15px; border: 1px solid var(--border); }
-        
-        @media print { .no-print { display: none !important; } }
+        /* КБЖУ */
+        .kbju-badge {
+            display: flex; gap: 10px; font-size: 0.8rem; margin-top: 10px; opacity: 0.7;
+        }
+
+        /* Таймер */
+        .smart-timer-btn {
+            background: #e8eedc; color: var(--olive); padding: 2px 8px;
+            border-radius: 5px; cursor: pointer; font-weight: 600; border-bottom: 2px solid var(--olive);
+        }
+        .floating-timer {
+            position: fixed; bottom: 90px; right: 20px;
+            background: var(--olive); color: white; padding: 15px 25px;
+            border-radius: 50px; z-index: 1000; box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        /* Шаги приготовления */
+        .step-item { padding: 12px; border-radius: 10px; cursor: pointer; white-space: pre-line; margin-bottom: 8px; border-left: 4px solid transparent; }
+        .step-done { opacity: 0.4; text-decoration: line-through; border-left-color: var(--olive); background: #f9f9f9; }
+
+        /* Модальные окна */
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 200;
+        }
+        .modal { background: white; padding: 30px; border-radius: 25px; width: 90%; max-width: 400px; }
+
+        /* Группировка в покупках */
+        .dept-title { font-weight: 600; color: var(--olive); margin-top: 20px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+
+        /* Адаптивная сетка */
+        @media (min-width: 768px) {
+            .recipe-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        }
     </style>
 </head>
 <body>
-    <div id="app">
-        <header class="no-print">
-            <h1 @click="page = 'home'" style="cursor:pointer; color:var(--olive); font-size: 1.5rem;">🌿 ScandiKitchen</h1>
-            <div style="display:flex; gap:10px;">
-                <button class="btn btn-olive" @click="page = 'planner'">📅 ПЛАН</button>
-            </div>
-        </header>
 
-        <main class="container">
-            <div v-if="page === 'home'">
-                <div style="display:flex; gap:10px; margin-bottom:30px;">
-                    <input type="text" v-model="search" placeholder="Поиск (блюдо или продукт)..." style="flex:1; padding:12px; border-radius:15px; border:1px solid var(--border);">
-                    <select v-model="selCat" style="padding:10px; border-radius:15px; border:1px solid var(--border);">
-                        <option value="">Все категории</option>
-                        <option v-for="c in categories" :value="c">{{c}}</option>
-                    </select>
-                </div>
-                <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:25px;">
-                    <div v-for="r in filteredRecipes" class="card" @click="openRecipe(r)">
-                        <img :src="userPhotos[r.id] || 'https://via.placeholder.com/400x300?text=Фото'" style="width:100%; height:200px; object-fit:cover;">
-                        <div style="padding:20px;">
-                            <small style="color:var(--olive); font-weight:bold;">{{r.category}}</small>
-                            <h3 style="margin:5px 0;">{{r.title}}</h3>
-                        </div>
-                    </div>
-                </div>
+<div id="app">
+    <nav>
+        <div class="logo" @click="view = 'home'">🌿 ScandiKitchen</div>
+        <div style="display:flex; gap:10px;">
+            <button class="btn btn-main" @click="view = 'planner'">📅 План</button>
+            <button class="btn" @click="view = 'shopping'" style="background:#e0ddd5">🛒 Список</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div v-if="view === 'home'">
+            <input type="text" v-model="search" placeholder="Поиск по рецепту или ингредиенту..." class="search-box">
+            
+            <div style="display:flex; gap:10px; overflow-x:auto; padding-bottom:15px; margin-bottom:10px;">
+                <button v-for="cat in categories" @click="selCat = cat" 
+                    :class="['btn', selCat === cat ? 'btn-main' : '']" style="white-space:nowrap">
+                    {{cat}}
+                </button>
             </div>
 
-            <div v-if="page === 'recipe'">
-                <button class="btn btn-gray no-print" @click="page = 'home'">← Назад</button>
-                <h1 style="margin:20px 0;">{{currentRecipe.title}}</h1>
-                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:40px;">
-                    <div>
-                        <img :src="userPhotos[currentRecipe.id] || 'https://via.placeholder.com/400'" style="width:100%; border-radius:25px;">
-                        <div class="no-print" style="margin-top:20px; display:flex; flex-direction:column; gap:10px;">
-                            <button class="btn btn-olive" @click="showModal = true">📅 Добавить в план</button>
-                            <label class="btn btn-gray" style="text-align:center;">📷 Изменить фото <input type="file" @change="uploadPhoto" hidden></label>
-                            <button class="btn btn-gray" onclick="window.print()">🖨 Печать</button>
-                        </div>
+            <div class="recipe-grid">
+                <div v-for="r in filteredRecipes" :key="r.id" class="card" @click="openRecipe(r)">
+                    <div style="height:150px; background:#ddd; border-radius:15px; margin-bottom:10px;">
+                        <img v-if="userPhotos[r.id]" :src="userPhotos[r.id]" style="width:100%; height:100%; object-fit:cover; border-radius:15px;">
                     </div>
-                    <div>
-                        <h3>🛒 Ингредиенты / Есть дома</h3>
-                        <div class="ing-grid" v-for="i in currentRecipe.ingredients">
-                            <span>{{i.name}}</span>
-                            <b>{{(i.amount / currentRecipe.servings * tempServings).toFixed(0)}} {{i.unit}}</b>
-                            <input type="number" class="stock-input" v-model.number="stock[i.name]" placeholder="0">
-                        </div>
-                        <div style="margin-top:20px; display:flex; align-items:center; gap:15px;" class="no-print">
-                            <span>Порции:</span>
-                            <button @click="tempServings--" :disabled="tempServings<=1">-</button>
-                            <b>{{tempServings}}</b>
-                            <button @click="tempServings++">+</button>
-                        </div>
+                    <h3 style="margin:0">{{r.title}}</h3>
+                    <div class="kbju-badge">
+                        <span>🔥 {{r.kcal}} ккал</span>
+                        <span>🥩 {{r.prot}}г Б</span>
+                        <span>🥑 {{r.fat}}г Ж</span>
+                        <span>🍞 {{r.carb}}г У</span>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div v-if="page === 'planner'">
-                <h2>Моё меню на неделю</h2>
-                <div v-for="(list, day) in plan" :key="day" class="day-box">
-                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding-bottom:10px;">
-                        <b style="color:var(--olive); font-size:1.2rem;">{{day}}</b>
-                        <button class="btn-gray" @click="clearDay(day)" style="font-size:0.7rem; border-radius:10px;">Очистить день</button>
-                    </div>
-                    <div v-if="!list.length" style="padding:10px; color:#aaa;">Свободный день</div>
-                    <div v-for="(item, idx) in list" style="display:flex; justify-content:space-between; padding:10px 0;">
-                        <span>🍴 {{item.title}}</span>
-                        <span @click="removeFromPlan(day, idx)" style="color:red; cursor:pointer;">×</span>
-                    </div>
+        <div v-if="view === 'recipe'">
+            <button class="btn" @click="view = 'home'">← Назад</button>
+            <h1 style="margin:20px 0 10px 0;">{{curR.title}}</h1>
+            
+            <div class="card">
+                <div style="display:flex; align-items:center; gap:20px; margin-bottom:20px;">
+                    <span>Порций: <b>{{servings}}</b></span>
+                    <button class="btn" @click="servings > 1 ? servings-- : 1" style="padding:5px 15px">-</button>
+                    <button class="btn" @click="servings++" style="padding:5px 15px">+</button>
                 </div>
 
-                <div class="shopping-list">
-                    <h3 style="margin-top:0;">📋 Умный список закупок</h3>
-                    <div v-for="(val, name) in shoppingList" :key="name" class="item-buy" :class="{done: bought.includes(name)}">
-                        <span @click="toggleBought(name)" style="cursor:pointer;">{{bought.includes(name) ? '✅' : '🔘'}} {{name}}</span>
-                        <b>{{val.need}} {{val.unit}}</b>
-                    </div>
-                    <button class="btn btn-olive" @click="sendToTG" style="width:100%; margin-top:20px; background:#24A1DE;">🚀 Отправить в Telegram</button>
+                <h3>Ингредиенты / Есть дома</h3>
+                <div v-for="ing in curR.ingredients" style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                    <span>{{ing.name}} ({{calcAmt(ing.amount)}} {{ing.unit}})</span>
+                    <input type="number" v-model.number="stock[ing.name]" placeholder="Есть г/шт" 
+                        style="width:70px; border-radius:8px; border:1px solid #ddd; padding:4px;">
+                </div>
+                <button class="btn btn-main" style="width:100%; margin-top:20px;" @click="showDayPicker = true">📅 Добавить в план</button>
+            </div>
+
+            <div class="card">
+                <h3>Инструкция</h3>
+                <div v-for="(step, i) in curR.steps" :key="i" 
+                    :class="['step-item', isDone(curR.id, i) ? 'step-done' : '']"
+                    @click="toggleStep(curR.id, i)">
+                    <span v-html="parseTimer(step)"></span>
+                </div>
+            </div>
+        </div>
+
+        <div v-if="view === 'planner'">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h2>План на неделю</h2>
+                <button @click="clearPlan" style="color:red; background:none; border:none; cursor:pointer;">Очистить всё</button>
+            </div>
+            
+            <div v-for="(list, day) in plan" :key="day" class="card">
+                <h3 style="margin:0 0 10px 0; color:var(--olive)">{{day}}</h3>
+                <div v-for="(item, idx) in list" style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                    <span>{{item.title}} ({{item.servs}} порц.)</span>
+                    <span @click="removeFromPlan(day, idx)" style="color:red; cursor:pointer; font-weight:bold;">×</span>
                 </div>
             </div>
 
-            <div v-if="showModal" class="modal-overlay" @click.self="showModal = false">
-                <div class="modal-content">
-                    <h3>Куда добавить блюдо?</h3>
-                    <div class="day-grid">
-                        <button class="btn btn-gray" v-for="d in Object.keys(plan)" @click="confirmAdd(d)">{{d}}</button>
-                    </div>
+            <div class="card" style="background:var(--olive); color:white;">
+                <h3>Шаблоны</h3>
+                <input type="text" v-model="tplName" placeholder="Имя шаблона" style="width:100%; padding:10px; border-radius:10px; margin-bottom:10px;">
+                <button class="btn" style="background:white; color:var(--olive); width:100%;" @click="saveTpl">Сохранить текущий план</button>
+                <div v-for="(data, name) in templates" :key="name" style="margin-top:10px; display:flex; justify-content:space-between;">
+                    <span @click="loadTpl(name)" style="cursor:pointer; text-decoration:underline;">{{name}}</span>
+                    <span @click="delTpl(name)" style="cursor:pointer; opacity:0.6;">удалить</span>
                 </div>
             </div>
-        </main>
+        </div>
+
+        <div v-if="view === 'shopping'">
+            <h2>Список покупок</h2>
+            <div v-for="(items, dept) in shoppingList" :key="dept">
+                <div class="dept-title">{{dept}}</div>
+                <div v-for="item in items" style="padding:10px 0; display:flex; justify-content:space-between;">
+                    <label style="display:flex; gap:10px; align-items:center;">
+                        <input type="checkbox"> <span>{{item.name}}</span>
+                    </label>
+                    <b>{{item.amount}} {{item.unit}}</b>
+                </div>
+            </div>
+            <button class="btn btn-main" style="width:100%; margin-top:30px; background:#24A1DE;" @click="exportTG">✈️ Отправить в Telegram</button>
+        </div>
     </div>
 
-    <script src="recipes.js"></script>
-    <script>
-        const { createApp } = Vue;
-        createApp({
-            data() {
-                return {
-                    page: 'home', search: '', selCat: '', showModal: false,
-                    categories: ['🍲 Супы','🥗 Салаты','🍖 Основные блюда (мясо, птица)','🐟 Основные блюда (рыба, морепродукты)','🍝 Гарниры','🥐 Выпечка','🍰 Десерты','🥤 Напитки','🥪 Закуски и бутерброды','🧂 Соусы'],
-                    recipes: typeof myRecipes !== 'undefined' ? myRecipes : [],
-                    currentRecipe: null, tempServings: 1,
-                    userPhotos: JSON.parse(localStorage.getItem('photos') || '{}'),
-                    stock: JSON.parse(localStorage.getItem('stock') || '{}'),
-                    plan: JSON.parse(localStorage.getItem('plan') || '{"Понедельник":[],"Вторник":[],"Среда":[],"Четверг":[],"Пятница":[],"Суббота":[],"Воскресенье":[]}'),
-                    bought: []
+    <div class="overlay" v-if="showDayPicker" @click.self="showDayPicker = false">
+        <div class="modal">
+            <h3>В какой день готовим?</h3>
+            <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:10px;">
+                <button v-for="d in days" @click="addToPlan(d)" class="btn btn-day">{{d}}</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="floating-timer" v-if="timeLeft > 0">
+        ⏱ {{ Math.floor(timeLeft / 60) }}:{{ (timeLeft % 60).toString().padStart(2, '0') }}
+    </div>
+</div>
+
+<script src="recipes.js"></script>
+<script>
+const { createApp } = Vue;
+
+createApp({
+    data() {
+        return {
+            view: 'home', search: '', selCat: '🍜 Супы',
+            categories: ['🍜 Супы','🥗 Салаты','🥩 Основные (мясо)','🐟 Основные (рыба)','🍚 Гарниры','🥧 Выпечка','🍰 Десерты','🍹 Напитки','🥨 Закуски','🧂 Соусы'],
+            days: ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'],
+            recipes: myRecipes,
+            curR: null, servings: 1, showDayPicker: false,
+            stock: JSON.parse(localStorage.getItem('sk_stock') || '{}'),
+            plan: JSON.parse(localStorage.getItem('sk_plan') || '{"Пн":[],"Вт":[],"Ср":[],"Чт":[],"Пт":[],"Сб":[],"Вс":[]}'),
+            doneSteps: JSON.parse(localStorage.getItem('sk_steps') || '{}'),
+            userPhotos: JSON.parse(localStorage.getItem('sk_photos') || '{}'),
+            templates: JSON.parse(localStorage.getItem('sk_tpls') || '{}'),
+            tplName: '', timeLeft: 0, timerObj: null
+        }
+    },
+    computed: {
+        filteredRecipes() {
+            return this.recipes.filter(r => {
+                const matchSearch = r.title.toLowerCase().includes(this.search.toLowerCase()) || 
+                                    r.ingredients.some(i => i.name.toLowerCase().includes(this.search.toLowerCase()));
+                return matchSearch && r.category === this.selCat;
+            });
+        },
+        shoppingList() {
+            let needed = {};
+            // Агрегация по всему плану
+            Object.values(this.plan).flat().forEach(p => {
+                const r = this.recipes.find(x => x.title === p.title);
+                if (!r) return;
+                r.ingredients.forEach(ing => {
+                    if (!needed[ing.name]) needed[ing.name] = { amount: 0, unit: ing.unit, dept: ing.dept };
+                    needed[ing.name].amount += (ing.amount / r.servings) * p.servs;
+                });
+            });
+
+            // Вычитание остатков (Инвентаризация)
+            let final = {};
+            for (let name in needed) {
+                let have = this.stock[name] || 0;
+                let buy = Math.max(0, needed[name].amount - have);
+                if (buy > 0) {
+                    let d = needed[name].dept || 'Прочее';
+                    if (!final[d]) final[d] = [];
+                    final[d].push({ name, amount: buy.toFixed(1).replace('.0',''), unit: needed[name].unit });
                 }
-            },
-            computed: {
-                filteredRecipes() {
-                    return this.recipes.filter(r => (r.title.toLowerCase().includes(this.search.toLowerCase()) || r.ingredients.some(i => i.name.toLowerCase().includes(this.search.toLowerCase()))) && (!this.selCat || r.category === this.selCat));
-                },
-                shoppingList() {
-                    let total = {};
-                    Object.values(this.plan).flat().forEach(p => {
-                        const r = this.recipes.find(x => x.title === p.title);
-                        if(r) r.ingredients.forEach(i => {
-                            if(!total[i.name]) total[i.name] = { amount: 0, unit: i.unit };
-                            total[i.name].amount += i.amount;
-                        });
-                    });
-                    let final = {};
-                    for(let name in total) {
-                        let have = this.stock[name] || 0;
-                        let diff = total[name].amount - have;
-                        if(diff > 0) final[name] = { need: diff.toFixed(0), unit: total[name].unit };
-                    }
-                    return final;
-                }
-            },
-            methods: {
-                openRecipe(r) { this.currentRecipe = r; this.tempServings = r.servings; this.page = 'recipe'; },
-                confirmAdd(day) {
-                    this.plan[day].push({title: this.currentRecipe.title});
-                    localStorage.setItem('plan', JSON.stringify(this.plan));
-                    this.showModal = false;
-                },
-                removeFromPlan(day, idx) { this.plan[day].splice(idx,1); localStorage.setItem('plan', JSON.stringify(this.plan)); },
-                clearDay(day) { this.plan[day] = []; localStorage.setItem('plan', JSON.stringify(this.plan)); },
-                toggleBought(name) {
-                    this.bought.includes(name) ? this.bought = this.bought.filter(i => i !== name) : this.bought.push(name);
-                },
-                uploadPhoto(e) {
-                    const reader = new FileReader();
-                    reader.onload = (f) => { this.userPhotos[this.currentRecipe.id] = f.target.result; localStorage.setItem('photos', JSON.stringify(this.userPhotos)); };
-                    reader.readAsDataURL(e.target.files[0]);
-                },
-                sendToTG() {
-                    let msg = "🛒 КУПИТЬ:\n";
-                    for(let name in this.shoppingList) if(!this.bought.includes(name)) msg += `🔘 ${name}: ${this.shoppingList[name].need} ${this.shoppingList[name].unit}\n`;
-                    msg += "\n📅 МЕНЮ:\n";
-                    for(let d in this.plan) if(this.plan[d].length) msg += `${d}: ${this.plan[d].map(x=>x.title).join(', ')}\n`;
-                    window.location.href = `tg://msg?text=${encodeURIComponent(msg)}`;
-                }
-            },
-            watch: { stock: { handler(v) { localStorage.setItem('stock', JSON.stringify(v)); }, deep: true } }
-        }).mount('#app');
-    </script>
+            }
+            return final;
+        }
+    },
+    methods: {
+        openRecipe(r) { this.curR = r; this.servings = r.servings; this.view = 'recipe'; window.scrollTo(0,0); },
+        calcAmt(amt) { return ((amt / this.curR.servings) * this.servings).toFixed(1).replace('.0',''); },
+        parseTimer(text) {
+            return text.replace(/(\d+)\s*(минут|мин)/g, (m, val) => `<span class="smart-timer-btn" onclick="startGlobalTimer(${val})">${m}</span>`);
+        },
+        toggleStep(rid, idx) {
+            if (!this.doneSteps[rid]) this.doneSteps[rid] = [];
+            let arr = this.doneSteps[rid];
+            arr.includes(idx) ? arr.splice(arr.indexOf(idx), 1) : arr.push(idx);
+            this.save();
+        },
+        isDone(rid, idx) { return this.doneSteps[rid]?.includes(idx); },
+        addToPlan(day) {
+            this.plan[day].push({ title: this.curR.title, servs: this.servings });
+            this.showDayPicker = false; this.save(); alert('Добавлено в ' + day);
+        },
+        removeFromPlan(day, idx) { this.plan[day].splice(idx, 1); this.save(); },
+        clearPlan() { if(confirm('Очистить неделю?')) { Object.keys(this.plan).forEach(d => this.plan[d] = []); this.save(); } },
+        save() {
+            localStorage.setItem('sk_plan', JSON.stringify(this.plan));
+            localStorage.setItem('sk_stock', JSON.stringify(this.stock));
+            localStorage.setItem('sk_steps', JSON.stringify(this.doneSteps));
+        },
+        saveTpl() { if(!this.tplName) return; this.templates[this.tplName] = JSON.parse(JSON.stringify(this.plan)); localStorage.setItem('sk_tpls', JSON.stringify(this.templates)); this.tplName = ''; },
+        loadTpl(n) { this.plan = JSON.parse(JSON.stringify(this.templates[n])); this.save(); },
+        delTpl(n) { delete this.templates[n]; localStorage.setItem('sk_tpls', JSON.stringify(this.templates)); },
+        exportTG() {
+            let msg = "🛒 СПИСОК ПОКУПОК:\n";
+            for (let d in this.shoppingList) {
+                msg += `\n📦 ${d.toUpperCase()}:\n`;
+                this.shoppingList[d].forEach(i => msg += `• ${i.name}: ${i.amount} ${i.unit}\n`);
+            }
+            msg += "\n📅 МЕНЮ:\n";
+            for (let day in this.plan) if(this.plan[day].length) msg += `${day}: ${this.plan[day].map(x=>x.title).join(', ')}\n`;
+            window.location.href = `tg://msg?text=${encodeURIComponent(msg)}`;
+        }
+    },
+    mounted() {
+        window.startGlobalTimer = (m) => {
+            this.timeLeft = m * 60;
+            if(this.timerObj) clearInterval(this.timerObj);
+            this.timerObj = setInterval(() => {
+                this.timeLeft--;
+                if(this.timeLeft <= 0) { clearInterval(this.timerObj); alert('Время вышло!'); }
+            }, 1000);
+        };
+    }
+}).mount('#app');
+
+// Service Worker для PWA
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+</script>
 </body>
 </html>
