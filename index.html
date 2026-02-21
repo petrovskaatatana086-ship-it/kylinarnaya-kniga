@@ -2,39 +2,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌿 ScandiKitchen | Рецепты</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>🌿 ScandiKitchen</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <style>
-        :root { --olive: #556b2f; --milk: #f4f1ea; --dark: #2c2c2c; --white: #ffffff; --shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: var(--milk); color: var(--dark); padding-bottom: 50px; }
-        header { background: var(--white); padding: 1rem 5%; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-weight: 600; font-size: 1.5rem; color: var(--olive); cursor: pointer; }
-        .container { max-width: 1200px; margin: 2rem auto; padding: 0 20px; }
-        .btn { padding: 12px 24px; border-radius: 25px; border: none; cursor: pointer; font-weight: 600; font-family: inherit; transition: 0.3s; display: inline-block; text-decoration: none; text-align: center; }
+        :root { --olive: #556b2f; --milk: #f4f1ea; --white: #ffffff; }
+        body { font-family: 'Inter', sans-serif; background: var(--milk); padding-bottom: 50px; }
+        header { background: var(--white); padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .btn { padding: 12px 24px; border-radius: 25px; border: none; cursor: pointer; font-weight: 600; transition: 0.3s; text-decoration: none; display: inline-block; text-align: center; }
         .btn-primary { background: var(--olive); color: white; width: 100%; }
-        .btn-video { background: #24A1DE; color: white; margin-top: 15px; width: 100%; }
-        .btn-outline { background: transparent; border: 1px solid var(--olive); color: var(--olive); }
+        .btn-video { background: #24A1DE; color: white; width: 100%; margin-top: 10px; }
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 20px; }
         .recipe-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
-        .recipe-card { background: var(--white); border-radius: 15px; overflow: hidden; box-shadow: var(--shadow); cursor: pointer; }
+        .recipe-card { background: var(--white); border-radius: 15px; overflow: hidden; cursor: pointer; }
         .recipe-img { width: 100%; height: 200px; object-fit: cover; }
-        .recipe-info { padding: 15px; }
-        .shopping-list { background: white; padding: 30px; border-radius: 20px; margin-top: 30px; border: 2px solid var(--olive); }
-        .shop-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
-        
-        /* Модалка с днями */
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 999; backdrop-filter: blur(3px); }
-        .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 20px; z-index: 1000; box-shadow: 0 10px 40px rgba(0,0,0,0.3); width: 90%; max-width: 400px; }
-        .day-btn { width: 100%; padding: 15px; margin-bottom: 8px; border: 1px solid #eee; border-radius: 10px; background: #f9f9f9; cursor: pointer; font-weight: 600; text-align: left; }
+        .shopping-list { background: white; padding: 25px; border-radius: 20px; border: 2px solid var(--olive); margin-top: 20px; }
+        .shop-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 999; }
+        .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 25px; border-radius: 20px; z-index: 1000; width: 90%; max-width: 400px; }
+        .day-btn { width: 100%; padding: 15px; margin-bottom: 8px; border: 1px solid #eee; border-radius: 10px; background: #f9f9f9; cursor: pointer; font-weight: 600; }
         .day-btn:hover { background: var(--olive); color: white; }
     </style>
 </head>
 <body>
     <div id="app">
         <header>
-            <div class="logo" @click="page = 'home'">🌿 ScandiKitchen</div>
-            <button class="btn btn-outline" @click="page = 'planner'">📅 План и Продукты</button>
+            <div @click="page = 'home'" style="cursor:pointer; font-weight:600; color:var(--olive); font-size:1.4rem;">🌿 ScandiKitchen</div>
+            <button class="btn" style="border:1px solid var(--olive)" @click="page = 'planner'">📅 План питания</button>
         </header>
 
         <div class="container">
@@ -42,50 +36,36 @@
                 <div class="recipe-grid">
                     <div v-for="r in recipes" :key="r.id" class="recipe-card" @click="openRecipe(r)">
                         <img :src="r.image" class="recipe-img">
-                        <div class="recipe-info"><h3>{{ r.title }}</h3></div>
+                        <div style="padding:15px;"><h3>{{ r.title }}</h3></div>
                     </div>
                 </div>
             </div>
 
             <div v-if="page === 'planner'">
-                <button class="btn btn-outline" @click="page = 'home'" style="margin-bottom:20px;">← Назад</button>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px;">
-                    <div v-for="day in weekDays" :key="day" style="background:white; padding:15px; border-radius:10px;">
-                        <h4 style="color:var(--olive); border-bottom:1px solid #eee; margin-bottom:10px;">{{ day }}</h4>
-                        <div v-for="(meal, idx) in plan[day]" :key="idx" style="font-size:0.85rem; margin-bottom:5px; display:flex; justify-content:space-between;">
-                            {{ meal.title }} <span style="color:red; cursor:pointer;" @click="removeFromPlan(day, idx)">×</span>
-                        </div>
-                    </div>
-                </div>
-
+                <button class="btn" @click="page = 'home'">← К рецептам</button>
                 <div class="shopping-list">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                        <h2>🛒 Список продуктов (суммарно):</h2>
-                        <button class="btn btn-primary" style="width:auto;" @click="sendToTelegram">✈ В Telegram</button>
-                    </div>
+                    <h2>🛒 Список покупок (суммарно):</h2>
                     <div v-for="(val, name) in summarizedList" :key="name" class="shop-row">
                         <span>{{ name }}</span>
-                        <span style="font-weight:600; color: var(--olive);">{{ val.amount }} {{ val.unit }}</span>
+                        <span style="font-weight:600;">{{ val.amount }} {{ val.unit }}</span>
                     </div>
                 </div>
             </div>
 
-            <div v-if="page === 'recipe' && currentRecipe" style="background:white; padding:30px; border-radius:20px;">
-                <button class="btn btn-outline" @click="page = 'home'" style="margin-bottom:20px;">← Назад</button>
-                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:30px;">
+            <div v-if="page === 'recipe' && currentRecipe">
+                <button class="btn" @click="page = 'home'">← Назад</button>
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:30px; margin-top:20px;">
                     <div>
-                        <img :src="currentRecipe.image" style="width:100%; border-radius:15px; box-shadow: var(--shadow);">
-                        <button class="btn btn-primary" style="margin-top:20px;" @click="showPicker = true">📅 Добавить в план</button>
-                        <a v-if="currentRecipe.video" :href="currentRecipe.video" target="_blank" class="btn btn-video">🎬 Смотреть видео</a>
+                        <img :src="currentRecipe.image" style="width:100%; border-radius:15px;">
+                        <button class="btn btn-primary" style="margin-top:15px;" @click="showPicker = true">📅 Добавить в план</button>
+                        <a v-if="currentRecipe.video" :href="currentRecipe.video" target="_blank" class="btn btn-video">🎬 Видео рецепт</a>
                     </div>
                     <div>
                         <h1>{{ currentRecipe.title }}</h1>
                         <h3 style="margin-top:20px;">Ингредиенты:</h3>
-                        <ul style="margin:15px 0; list-style: none;">
-                            <li v-for="ing in currentRecipe.ingredients" style="padding: 5px 0; border-bottom: 1px solid #f0f0f0;">🔹 {{ ing.name }}: {{ ing.amount }} {{ ing.unit }}</li>
-                        </ul>
-                        <h3>Приготовление:</h3>
-                        <p v-for="step in currentRecipe.steps" style="margin-top:15px; line-height: 1.6;">{{ step }}</p>
+                        <ul><li v-for="ing in currentRecipe.ingredients">🔹 {{ ing.name }}: {{ ing.amount }} {{ ing.unit }}</li></ul>
+                        <h3 style="margin-top:20px;">Приготовление:</h3>
+                        <p v-for="step in currentRecipe.steps" style="margin-top:10px;">{{ step }}</p>
                     </div>
                 </div>
             </div>
@@ -93,7 +73,7 @@
 
         <div class="overlay" v-if="showPicker" @click="showPicker = false"></div>
         <div class="modal" v-if="showPicker">
-            <h3 style="margin-bottom:15px;">Выберите день недели:</h3>
+            <h3>Выберите день:</h3>
             <button v-for="day in weekDays" @click="addToPlan(day)" class="day-btn">{{ day }}</button>
         </div>
     </div>
@@ -134,18 +114,6 @@
                     this.plan[day].push({ title: this.currentRecipe.title });
                     localStorage.setItem('userPlan', JSON.stringify(this.plan));
                     this.showPicker = false;
-                },
-                removeFromPlan(day, idx) {
-                    this.plan[day].splice(idx, 1);
-                    localStorage.setItem('userPlan', JSON.stringify(this.plan));
-                },
-                sendToTelegram() {
-                    let text = "🛒 СПИСОК ПОКУПОК 🌿\n\n";
-                    for (let name in this.summarizedList) {
-                        const item = this.summarizedList[name];
-                        text += `🔘 ${name}: ${item.amount} ${item.unit}\n`;
-                    }
-                    window.open(`https://t.me/share/url?url=${encodeURIComponent(text)}`, '_blank');
                 }
             }
         }).mount('#app')
